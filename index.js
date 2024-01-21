@@ -29,6 +29,7 @@ async function run() {
     await client.connect();
 
     const serviceCollection = client.db('carDoctor').collection('services');
+    const checkOutCollection = client.db('carDoctor').collection('checkOut');
 
     //to get the service data collection this operation
     app.get('/services', async(req,res)=>{
@@ -42,7 +43,18 @@ async function run() {
       const id = req.params.id;
       console.log(id);
       const query = {_id: new ObjectId(id)};
-      const result = await serviceCollection.findOne(query);
+      const options ={
+        projection:{title:1,img:1,price:1,description:1},
+      }
+      const result = await serviceCollection.findOne(query,options);
+      res.send(result);
+    })
+
+    //for check out
+    app.post('/checkOut', async(req,res)=>{
+      const checkOut = req.body;
+      console.log(checkOut)
+      const result = await checkOutCollection.insertOne(checkOut);
       res.send(result);
     })
 
