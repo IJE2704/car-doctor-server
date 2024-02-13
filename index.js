@@ -50,6 +50,20 @@ async function run() {
       res.send(result);
     })
 
+    // this operation for get the checkout data from database and create a api
+    app.get('/checkOut', async(req,res)=>{
+      console.log(req)
+      let query = {};
+      if(req.query.customar_email){
+        query = {
+          customar_email : req.query.customar_email
+        }
+      }
+      const cursor = checkOutCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+    })
+
     //for check out
     app.post('/checkOut', async(req,res)=>{
       const checkOut = req.body;
