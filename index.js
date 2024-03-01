@@ -5,6 +5,7 @@ const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 5000;
 const jwt = require("jsonwebtoken")
+const cookieParser = require("cookie-parser")
 
 // midlware
 app.use(cors({
@@ -12,6 +13,7 @@ app.use(cors({
   credentials:true
 }));
 app.use(express.json())
+app.use(cookieParser())
 
 
 // console.log(process.env.db_user);
@@ -58,6 +60,7 @@ async function run() {
       const cursor = serviceCollection.find();
       const result = await cursor.toArray();
       res.send(result);
+      console.log(req.cookies.accessToken)
     })
 
     //this operation create for get the data about a specific id
