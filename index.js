@@ -4,9 +4,13 @@ require('dotenv').config()
 const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 5000;
+const jwt = require("jsonwebtoken")
 
 // midlware
-app.use(cors());
+app.use(cors({
+  origin:['http://localhost:5173'],
+  credentials:true
+}));
 app.use(express.json())
 
 
@@ -30,6 +34,24 @@ async function run() {
 
     const serviceCollection = client.db('carDoctor').collection('services');
     const checkOutCollection = client.db('carDoctor').collection('checkOut');
+
+    // auth related api
+    app.post("/user", async(req,res)=>{
+      const user = req.body;
+      console.log(user)
+      // create token here
+      const token = jwt.sign(user,process.env.accsess_token,{expiresIn:'1h'})
+            // set cookies here
+      res.cookie('accessToken', token,{
+        httpOnly:true,
+        secure:false,
+      })
+
+      console.log("token set successfully", token);
+
+      res.send({success:true})
+    })
+
 
     //to get the service data collection this operation
     app.get('/services', async(req,res)=>{
