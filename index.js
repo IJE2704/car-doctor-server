@@ -16,6 +16,33 @@ app.use(express.json())
 app.use(cookieParser())
 
 
+const logger = async(req,res,next) =>{
+  console.log("caller :" , req.host, req.orginalUrl)
+  next();
+}
+
+const verifyToken = async(req,res,next) =>{
+  console.log("here is verify")
+  const token = req.cookies.accessToken;
+  console.log(token)
+  console.log(req.cookies)
+  if(!token)
+  {
+    console.log("not token")
+    return res.status(401).send({message: "Un Auhtorized"})
+  }
+  jwt.verify(token, process.env.accsess_token, (err,decoded)=>{
+    console.log("ender verify")
+    if(err){
+      console.log("error")
+      return res.status(401).send({message: "Un Auhtorized"})
+    }
+    console.log("value in the token : " ,decoded)
+    req.user = decoded;
+    next();
+  })
+  console.log(token)
+}
 // console.log(process.env.db_user);
 
 const uri = `mongodb+srv://${process.env.db_user}:${process.env.db_user_pass}@cluster0.oenz0rl.mongodb.net/?retryWrites=true&w=majority`;
@@ -38,8 +65,9 @@ async function run() {
     const checkOutCollection = client.db('carDoctor').collection('checkOut');
 
     // auth related api
-    app.post("/user", async(req,res)=>{
+    app.post("/user", logger,verifyToken, async(req,res)=>{
       const user = req.body;
+      console.log("user :",req.user);
       console.log(user)
       // create token here
       const token = jwt.sign(user,process.env.accsess_token,{expiresIn:'1h'})
@@ -49,7 +77,7 @@ async function run() {
         secure:false,
       })
 
-      console.log("token set successfully", token);
+      // console.log("token set successfully", token);
 
       res.send({success:true})
     })
@@ -60,7 +88,7 @@ async function run() {
       const cursor = serviceCollection.find();
       const result = await cursor.toArray();
       res.send(result);
-      console.log(req.cookies.accessToken)
+      // console.log(req.cookies.accessToken)
     })
 
     //this operation create for get the data about a specific id
@@ -76,9 +104,13 @@ async function run() {
     })
 
     // this operation for get the checkout data from database and create a api
-    app.get('/checkOut', async(req,res)=>{
+    app.get('/checkOut', verifyToken, async(req,res)=>{
       console.log(req)
       let query = {};
+      if(req.query.customar_email !== req.user.email)
+      {
+        console.log("unAuthorized");
+      }
       if(req.query.customar_email){
         query = {
           customar_email : req.query.customar_email
@@ -90,7 +122,7 @@ async function run() {
     })
 
     //for check out
-    app.post('/checkOut', async(req,res)=>{
+    app.post('/checkOut', verifyToken, async(req,res)=>{
       const checkOut = req.body;
       console.log(checkOut)
       const result = await checkOutCollection.insertOne(checkOut);
