@@ -23,9 +23,9 @@ const logger = async(req,res,next) =>{
 
 const verifyToken = async(req,res,next) =>{
   console.log("here is verify")
-  const token = req.cookies.accessToken;
+  const token = req.cookies.token;
   console.log(token)
-  console.log(req.cookies)
+  // console.log(req)
   if(!token)
   {
     console.log("not token")
@@ -65,21 +65,30 @@ async function run() {
     const checkOutCollection = client.db('carDoctor').collection('checkOut');
 
     // auth related api
-    app.post("/user", logger,verifyToken, async(req,res)=>{
+    app.post("/user", async(req,res)=>{
       const user = req.body;
       console.log("user :",req.user);
       console.log(user)
+      console.log(process.env.accsess_token)
       // create token here
       const token = jwt.sign(user,process.env.accsess_token,{expiresIn:'1h'})
             // set cookies here
-      res.cookie('accessToken', token,{
-        httpOnly:true,
+      res.cookie('token', token,{
+        httpOnly:false,
         secure:false,
+        sameSite:'none'
       })
 
-      // console.log("token set successfully", token);
+      console.log("token set successfully from user: ", token);
 
       res.send({success:true})
+    })
+
+    app.post('/logout', async(req,res)=>{
+      const user = req.body;
+      console.log('token clean')
+      res.clearCookie('token', {maxAge:0})
+      res.send({message:"Successfully log out"})
     })
 
 
@@ -104,10 +113,10 @@ async function run() {
     })
 
     // this operation for get the checkout data from database and create a api
-    app.get('/checkOut', verifyToken, async(req,res)=>{
-      console.log(req)
+    app.get('/checkOut',async(req,res)=>{
+      console.log(req.cookies)
       let query = {};
-      if(req.query.customar_email !== req.user.email)
+      if(req.query.customar_email !== req.user?.email)
       {
         console.log("unAuthorized");
       }
@@ -122,7 +131,7 @@ async function run() {
     })
 
     //for check out
-    app.post('/checkOut', verifyToken, async(req,res)=>{
+    app.post('/checkOut', async(req,res)=>{
       const checkOut = req.body;
       console.log(checkOut)
       const result = await checkOutCollection.insertOne(checkOut);
@@ -131,6 +140,7 @@ async function run() {
 
     // for delete the orders data
     app.delete('/checkOut/:id', async(req,res) =>{
+      console.log(req.cookies)
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await checkOutCollection.deleteOne(query);
