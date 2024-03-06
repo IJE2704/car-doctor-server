@@ -4,16 +4,22 @@ require('dotenv').config()
 const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 5000;
-const jwt = require("jsonwebtoken")
-const cookieParser = require("cookie-parser")
+const jwt = require("jsonwebtoken");
+const cookieParser = require("cookie-parser");
 
 // midlware
 app.use(cors({
-  origin:['http://localhost:5173'],
-  credentials:true
+  origin:[
+    
+    // 'http://localhost:5173',
+    "https://cars-doctor-c3531.web.app/",
+    'https://cars-doctor-c3531.firebaseapp.com'
+
+],
+  credentials:true,
 }));
-app.use(express.json())
-app.use(cookieParser())
+app.use(express.json());
+app.use(cookieParser());
 
 
 const logger = async(req,res,next) =>{
@@ -67,9 +73,9 @@ async function run() {
     // auth related api
     app.post("/user", async(req,res)=>{
       const user = req.body;
-      console.log("user :",req.user);
-      console.log(user)
-      console.log(process.env.accsess_token)
+      // console.log("user :",req.user);
+      // console.log(user)
+      // console.log(process.env.accsess_token)
       // create token here
       const token = jwt.sign(user,process.env.accsess_token,{expiresIn:'1h'})
             // set cookies here
@@ -79,7 +85,7 @@ async function run() {
         sameSite:'none'
       })
 
-      console.log("token set successfully from user: ", token);
+      // console.log("token set successfully from user: ", token);
 
       res.send({success:true})
     })
@@ -114,12 +120,13 @@ async function run() {
 
     // this operation for get the checkout data from database and create a api
     app.get('/checkOut',async(req,res)=>{
-      console.log(req.cookies)
+      console.log("cookies:",req.cookies.token)
       let query = {};
-      if(req.query.customar_email !== req.user?.email)
-      {
-        console.log("unAuthorized");
-      }
+      // if(req.query.customar_email !== req.user?.email)
+      // {
+      //   console.log("unAuthorized");
+      // }
+      console.log(req.query.customar_email)
       if(req.query.customar_email){
         query = {
           customar_email : req.query.customar_email
