@@ -106,6 +106,11 @@ async function run() {
       // console.log(req.cookies.accessToken)
     })
 
+
+    // 
+    app.get("/demo", async(req,res)=>{
+      res.send("here is demo data");
+    })
     //this operation create for get the data about a specific id
     app.get('/services/:id', async(req,res)=>{
       const id = req.params.id;
