@@ -1,6 +1,7 @@
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express');
-require('dotenv').config()
+const dotenv = require('dotenv')
+dotenv.config();
 const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 5000;
@@ -77,13 +78,13 @@ async function run() {
       // console.log(user)
       // console.log(process.env.accsess_token)
       // create token here
-      // const token = jwt.sign(user,process.env.accsess_token,{expiresIn:'1h'})
-      //       // set cookies here
-      // res.cookie('token', token,{
-      //   httpOnly:false,
-      //   secure:false,
-      //   sameSite:'none'
-      // })
+      const token = jwt.sign(user,process.env.accsess_token,{expiresIn:'1h'})
+            // set cookies here
+      res.cookie('token', token,{
+        httpOnly:false,
+        secure:false,
+        sameSite:'none'
+      })
 
       // console.log("token set successfully from user: ", token);
 
@@ -93,7 +94,7 @@ async function run() {
     app.post('/logout', async(req,res)=>{
       const user = req.body;
       console.log('token clean')
-      // res.clearCookie('token', {maxAge:0})
+      res.clearCookie('token', {maxAge:0})
       res.send({message:"Successfully log out"})
     })
 
@@ -108,7 +109,7 @@ async function run() {
 
 
     // 
-    app.get("/dummy", (req,res)=>{
+    app.get("/demo", async(req,res)=>{
       res.send("here is demo data");
     })
     //this operation create for get the data about a specific id
@@ -177,7 +178,7 @@ app.get('/', (req,res)=>{
 })
 
 app.get('/demo', (req,res)=>{
-  res.send("its a demo method");
+  res.send("its a demo method")
 })
 
 app.listen(port, ()=>{
