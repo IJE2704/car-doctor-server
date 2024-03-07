@@ -9,13 +9,7 @@ const cookieParser = require("cookie-parser");
 
 // midlware
 app.use(cors({
-  origin:[
-    
-    // 'http://localhost:5173',
-    "https://cars-doctor-c3531.web.app/",
-    'https://cars-doctor-c3531.firebaseapp.com'
-
-],
+  origin:'*',
   credentials:true,
 }));
 app.use(express.json());
@@ -27,28 +21,28 @@ const logger = async(req,res,next) =>{
   next();
 }
 
-const verifyToken = async(req,res,next) =>{
-  console.log("here is verify")
-  const token = req.cookies.token;
-  console.log(token)
-  // console.log(req)
-  if(!token)
-  {
-    console.log("not token")
-    return res.status(401).send({message: "Un Auhtorized"})
-  }
-  jwt.verify(token, process.env.accsess_token, (err,decoded)=>{
-    console.log("ender verify")
-    if(err){
-      console.log("error")
-      return res.status(401).send({message: "Un Auhtorized"})
-    }
-    console.log("value in the token : " ,decoded)
-    req.user = decoded;
-    next();
-  })
-  console.log(token)
-}
+// const verifyToken = async(req,res,next) =>{
+//   console.log("here is verify")
+//   const token = req.cookies.token;
+//   console.log(token)
+//   // console.log(req)
+//   if(!token)
+//   {
+//     console.log("not token")
+//     return res.status(401).send({message: "Un Auhtorized"})
+//   }
+//   jwt.verify(token, process.env.accsess_token, (err,decoded)=>{
+//     console.log("ender verify")
+//     if(err){
+//       console.log("error")
+//       return res.status(401).send({message: "Un Auhtorized"})
+//     }
+//     console.log("value in the token : " ,decoded)
+//     req.user = decoded;
+//     next();
+//   })
+//   console.log(token)
+// }
 // console.log(process.env.db_user);
 
 const uri = `mongodb+srv://${process.env.db_user}:${process.env.db_user_pass}@cluster0.oenz0rl.mongodb.net/?retryWrites=true&w=majority`;
