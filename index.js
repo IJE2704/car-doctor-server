@@ -176,6 +176,10 @@ app.get('/', (req,res)=>{
   res.send('Doctor is running');
 })
 
+app.get('/demo', (req,res)=>{
+  res.send("its a demo method");
+})
+
 app.listen(port, ()=>{
   console.log(`Car doctor is running on port : ${port}`)
 })
