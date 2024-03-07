@@ -9,7 +9,13 @@ const cookieParser = require("cookie-parser");
 
 // midlware
 app.use(cors({
-  origin:'*',
+  origin:[
+    
+    // 'http://localhost:5173',
+    "https://cars-doctor-c3531.web.app/",
+    'https://cars-doctor-c3531.firebaseapp.com'
+
+],
   credentials:true,
 }));
 app.use(express.json());
@@ -21,28 +27,28 @@ const logger = async(req,res,next) =>{
   next();
 }
 
-// const verifyToken = async(req,res,next) =>{
-//   console.log("here is verify")
-//   const token = req.cookies.token;
-//   console.log(token)
-//   // console.log(req)
-//   if(!token)
-//   {
-//     console.log("not token")
-//     return res.status(401).send({message: "Un Auhtorized"})
-//   }
-//   jwt.verify(token, process.env.accsess_token, (err,decoded)=>{
-//     console.log("ender verify")
-//     if(err){
-//       console.log("error")
-//       return res.status(401).send({message: "Un Auhtorized"})
-//     }
-//     console.log("value in the token : " ,decoded)
-//     req.user = decoded;
-//     next();
-//   })
-//   console.log(token)
-// }
+const verifyToken = async(req,res,next) =>{
+  console.log("here is verify")
+  const token = req.cookies.token;
+  console.log(token)
+  // console.log(req)
+  if(!token)
+  {
+    console.log("not token")
+    return res.status(401).send({message: "Un Auhtorized"})
+  }
+  jwt.verify(token, process.env.accsess_token, (err,decoded)=>{
+    console.log("ender verify")
+    if(err){
+      console.log("error")
+      return res.status(401).send({message: "Un Auhtorized"})
+    }
+    console.log("value in the token : " ,decoded)
+    req.user = decoded;
+    next();
+  })
+  console.log(token)
+}
 // console.log(process.env.db_user);
 
 const uri = `mongodb+srv://${process.env.db_user}:${process.env.db_user_pass}@cluster0.oenz0rl.mongodb.net/?retryWrites=true&w=majority`;
@@ -71,13 +77,13 @@ async function run() {
       // console.log(user)
       // console.log(process.env.accsess_token)
       // create token here
-      const token = jwt.sign(user,process.env.accsess_token,{expiresIn:'1h'})
-            // set cookies here
-      res.cookie('token', token,{
-        httpOnly:false,
-        secure:false,
-        sameSite:'none'
-      })
+      // const token = jwt.sign(user,process.env.accsess_token,{expiresIn:'1h'})
+      //       // set cookies here
+      // res.cookie('token', token,{
+      //   httpOnly:false,
+      //   secure:false,
+      //   sameSite:'none'
+      // })
 
       // console.log("token set successfully from user: ", token);
 
@@ -87,7 +93,7 @@ async function run() {
     app.post('/logout', async(req,res)=>{
       const user = req.body;
       console.log('token clean')
-      res.clearCookie('token', {maxAge:0})
+      // res.clearCookie('token', {maxAge:0})
       res.send({message:"Successfully log out"})
     })
 
@@ -102,7 +108,7 @@ async function run() {
 
 
     // 
-    app.get("/demo", async(req,res)=>{
+    app.get("/dummy", (req,res)=>{
       res.send("here is demo data");
     })
     //this operation create for get the data about a specific id
